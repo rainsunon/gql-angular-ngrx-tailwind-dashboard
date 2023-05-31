@@ -1,36 +1,69 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import {Component, inject} from '@angular/core';
+import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {ClickOutsideDirective} from './outside-click-directive';
+import {DarkmodeToggleComponent} from './darkmode-toggle/darkmode-toggle.component';
+import {SidebarComponent} from './sidebar/sidebar.component';
+import {Store} from '@ngrx/store';
+import {appState} from './state/app.reducer';
+import {map} from 'rxjs';
+import {NavComponent} from './nav/nav.component';
+import {AllUsers_QueryGQL, Login_QueryGQL} from '../sdk/gql';
+import {LoginFormComponent} from './login-form/login-form.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
+  imports: [CommonModule,
+    FormsModule,
+    RouterOutlet,
+    ClickOutsideDirective,
+    RouterLink,
+    RouterLinkActive,
+    DarkmodeToggleComponent,
+    SidebarComponent,
+    NavComponent, LoginFormComponent],
+  providers: [],
   template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center" class="content">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <span style="display: block">{{ title }} app is running!</span>
-      <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    <router-outlet></router-outlet>
+      <app-nav></app-nav>
+      <div class="font-mono w-full h-[calc(100vh-60px)] ">
+        <div class=" w-full  h-full flex flex-row ">
+          <app-sidebar>
+          </app-sidebar>
+          <div [class.w-[calc(100%-300px)]]="!(sideBarClosed | async)" [class.w-full]="sideBarClosed | async"
+               class="h-full pt-5 px-5 bg-[rgb(248,249,250)] dark:bg-gray-500 text-gray-500 transition-all
+         ">
+            <app-login-form *ngIf="loginFormOpen | async"></app-login-form>
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+
   `,
   styles: [],
 })
 export class AppComponent {
-  title = 'v2-16';
+  data = inject(AllUsers_QueryGQL);
+  login = inject(Login_QueryGQL);
+  store: Store<{ app: typeof appState }> = inject(Store<{ app: typeof appState }>);
+
+  sideBarClosed = this.store.select('app')
+    .pipe(map(s => s.sideBarClosed));
+  loginFormOpen = this.store.select('app')
+    .pipe(map(s => s.loginFormOpen));
+
+  profileMenuOpen = this.store.select('app')
+    .pipe(map(s => s.profileMenuOpen));
+
+  darkMode = false;
+  isDarkMode = () => document.body.classList.contains('dark');
+  constructor() {
+    this.login.fetch({username: 'xsip', password: '988798'}).subscribe(res => {
+      console.log(res.data.login);
+    })
+    this.data.fetch()
+      .pipe(map(d=>d.data.allUsers))
+      .subscribe(res => console.log(res));
+  }
 }
