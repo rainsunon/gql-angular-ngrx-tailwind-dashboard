@@ -16,6 +16,7 @@ export const AllUsers_QueryDocument = gql`
     password
     verificationCode
     verificationEmailSent
+    refreshToken
     role
   }
 }
@@ -39,6 +40,7 @@ export const UserById_QueryDocument = gql`
     password
     verificationCode
     verificationEmailSent
+    refreshToken
     role
   }
 }
@@ -49,6 +51,41 @@ export const UserById_QueryDocument = gql`
   })
   export class UserById_QueryGQL extends Apollo.Query<UserById_QueryQuery, UserById_QueryQueryVariables> {
     document = UserById_QueryDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const GetRefreshToken_QueryDocument = gql`
+    query getRefreshToken_query {
+  getRefreshToken
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class GetRefreshToken_QueryGQL extends Apollo.Query<GetRefreshToken_QueryQuery, GetRefreshToken_QueryQueryVariables> {
+    document = GetRefreshToken_QueryDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const HandleRefreshToken_QueryDocument = gql`
+    query handleRefreshToken_query($refreshToken: String!) {
+  handleRefreshToken(refreshToken: $refreshToken) {
+    refreshToken
+    token
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class HandleRefreshToken_QueryGQL extends Apollo.Query<HandleRefreshToken_QueryQuery, HandleRefreshToken_QueryQueryVariables> {
+    document = HandleRefreshToken_QueryDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);
@@ -78,6 +115,7 @@ export const Register_MutationDocument = gql`
     password
     verificationCode
     verificationEmailSent
+    refreshToken
     role
   }
 }
@@ -117,8 +155,15 @@ export type MutationRegisterArgs = {
 export type Query = {
   __typename?: 'Query';
   allUsers: Array<UserGqlModel>;
+  getRefreshToken: Scalars['String']['output'];
+  handleRefreshToken: RefreshTokenResponseModel;
   login: Scalars['String']['output'];
   userById: UserGqlModel;
+};
+
+
+export type QueryHandleRefreshTokenArgs = {
+  refreshToken: Scalars['String']['input'];
 };
 
 
@@ -132,10 +177,17 @@ export type QueryUserByIdArgs = {
   id: Scalars['String']['input'];
 };
 
+export type RefreshTokenResponseModel = {
+  __typename?: 'RefreshTokenResponseModel';
+  refreshToken: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
 export type UserGqlModel = {
   __typename?: 'UserGqlModel';
   email: Scalars['String']['output'];
   password?: Maybe<Scalars['String']['output']>;
+  refreshToken?: Maybe<Scalars['String']['output']>;
   role: Scalars['String']['output'];
   username: Scalars['String']['output'];
   verificationCode?: Maybe<Scalars['String']['output']>;
@@ -145,14 +197,26 @@ export type UserGqlModel = {
 export type AllUsers_QueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllUsers_QueryQuery = { __typename?: 'Query', allUsers: Array<{ __typename?: 'UserGqlModel', username: string, email: string, password?: string | null, verificationCode?: string | null, verificationEmailSent?: boolean | null, role: string }> };
+export type AllUsers_QueryQuery = { __typename?: 'Query', allUsers: Array<{ __typename?: 'UserGqlModel', username: string, email: string, password?: string | null, verificationCode?: string | null, verificationEmailSent?: boolean | null, refreshToken?: string | null, role: string }> };
 
 export type UserById_QueryQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type UserById_QueryQuery = { __typename?: 'Query', userById: { __typename?: 'UserGqlModel', username: string, email: string, password?: string | null, verificationCode?: string | null, verificationEmailSent?: boolean | null, role: string } };
+export type UserById_QueryQuery = { __typename?: 'Query', userById: { __typename?: 'UserGqlModel', username: string, email: string, password?: string | null, verificationCode?: string | null, verificationEmailSent?: boolean | null, refreshToken?: string | null, role: string } };
+
+export type GetRefreshToken_QueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetRefreshToken_QueryQuery = { __typename?: 'Query', getRefreshToken: string };
+
+export type HandleRefreshToken_QueryQueryVariables = Exact<{
+  refreshToken: Scalars['String']['input'];
+}>;
+
+
+export type HandleRefreshToken_QueryQuery = { __typename?: 'Query', handleRefreshToken: { __typename?: 'RefreshTokenResponseModel', refreshToken: string, token: string } };
 
 export type Login_QueryQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -169,4 +233,4 @@ export type Register_MutationMutationVariables = Exact<{
 }>;
 
 
-export type Register_MutationMutation = { __typename?: 'Mutation', register: { __typename?: 'UserGqlModel', username: string, email: string, password?: string | null, verificationCode?: string | null, verificationEmailSent?: boolean | null, role: string } };
+export type Register_MutationMutation = { __typename?: 'Mutation', register: { __typename?: 'UserGqlModel', username: string, email: string, password?: string | null, verificationCode?: string | null, verificationEmailSent?: boolean | null, refreshToken?: string | null, role: string } };

@@ -11,7 +11,7 @@ import {map} from 'rxjs';
   imports: [CommonModule, RouterLinkActive, RouterOutlet, RouterLink],
   template: `
 
-      <div [class.w-[300px]]="!(sideBarClosed | async)" [class.!w-[0px]]="sideBarClosed | async" class="dark:bg-gray-600 drop-shadow-md overflow-hidden transition-all
+      <div [class.w-[300px]]="!(sideBarClosed | async)" [class.w-[0px]]="sideBarClosed | async" class="dark:bg-gray-600 drop-shadow-md overflow-hidden transition-all
        h-full bg-[rgb(247,248,248)] relative">
         <div class="">
           <div

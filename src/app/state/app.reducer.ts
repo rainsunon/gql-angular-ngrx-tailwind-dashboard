@@ -26,6 +26,7 @@ interface AppState {
   token?: string;
   user?: UserGqlModel;
   loginFormOpen?: boolean;
+  refreshToken?: string;
 }
 export const appState: AppState = {
   sideBarClosed: false,
@@ -35,6 +36,7 @@ export const appState: AppState = {
   token: undefined,
   user: undefined,
   loginFormOpen: false,
+  refreshToken: undefined,
 };
 
 export const appReducer = createReducer(
@@ -43,29 +45,35 @@ export const appReducer = createReducer(
     const darkMode = JSON.parse(localStorage.getItem('dark') ?? 'true');
     const jwt: string = localStorage.getItem('jwt') as string;
     const isLoggedIn = JSON.parse(jwt ?  'true' : 'false');
+    const rt = localStorage.getItem('refreshToken') as string;
     if (darkMode) {
       document.body.classList.add('dark');
     } else {
       document.body.classList.remove('dark');
     }
+    const user =  getDecodedAccessToken(jwt);
     return {
       ...state,
       darkMode: darkMode,
       token: jwt,
       isLoggedIn: isLoggedIn,
       loginFormOpen: !isLoggedIn,
-      user: getDecodedAccessToken(jwt)
+      user,
+      refreshToken: rt
     };
   }),
   on(postLogin, (state, action) =>  {
-    console.log(action);
+    const user =  getDecodedAccessToken(action.token);
     localStorage.setItem('jwt', action.token);
+    localStorage.setItem('refreshToken',  action.refreshToken ?? (user?.refreshToken ?? '' ));
+
     return {
       ...state,
       token: action.token,
       isLoggedIn: true,
       loginFormOpen: false,
-      user: getDecodedAccessToken(action.token)
+      user,
+      refreshToken: action.refreshToken
     }
   }),
   on(toggleDarkMode, (state) => {
