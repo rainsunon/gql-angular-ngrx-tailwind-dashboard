@@ -2,7 +2,9 @@ import {createAction, props} from '@ngrx/store';
 
 export const toggleSidebar = createAction('[APP] Toggle Sidebar')
 export const login = createAction('[APP] Login', props<{ userName: string, password: string; }>());
-export const postLogin = createAction('[APP] Post Login', props<{ token: string; refreshToken?: string; }>());
+export const handleRefreshToken = createAction('[APP] handleRefreshToken');
+export const postLogin = createAction('[APP] Post Login', props<{ token: string; refreshToken?: string; reload?: boolean }>());
+export const logout = createAction('[APP] Logout');
 export const appInit = createAction('[APP] Init')
 export const toggleDarkMode = createAction('[APP] Toggle DarkMode')
 export const toggleProfileMenu = createAction('[APP] Toggle ProfileMenu')

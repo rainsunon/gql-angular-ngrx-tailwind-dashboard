@@ -46,8 +46,8 @@ export class LoginFormComponent {
   destroyRef = inject(DestroyRef);
   fb = inject(FormBuilder);
   form = this.fb.group({
-    username: '',
-    password: '',
+    username: 'xsip',
+    password: '988798',
   })
   store: Store<{ app: typeof appState }> = inject(Store<{ app: typeof appState }>);
   loginGql = inject(Login_QueryGQL);

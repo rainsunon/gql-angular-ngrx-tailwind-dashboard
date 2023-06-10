@@ -37,7 +37,7 @@ import {postLogin} from './state/app.actions';
       <div class=" w-full  h-full flex flex-row ">
         <app-sidebar>
         </app-sidebar>
-        <div [class.w-[calc(100%-300px)]]="!(sideBarClosed | async)" [class.w-full]="sideBarClosed | async"
+        <div [class.w-[calc(100%-300px)]]="!(sideBarClosed | async)" [class.sm:w-[calc(100%)]]="!(sideBarClosed | async)" [class.w-full]="sideBarClosed | async"
              class="h-full pt-5 px-5 bg-[rgb(248,249,250)] dark:bg-gray-500 text-gray-500 transition-all
          ">
           <app-login-form *ngIf="loginFormOpen | async"></app-login-form>
@@ -74,7 +74,7 @@ export class AppComponent {
       .pipe(map(d => d.data.allUsers))
       .subscribe(res => console.log(res));
 
-
+    /*
     timer(1000,5000).pipe(switchMap(()=> {
       return this.getRefreshToken.watch().refetch()
     }),switchMap((d) => {
@@ -84,6 +84,6 @@ export class AppComponent {
         refreshToken: res.data.handleRefreshToken.refreshToken as any,
         token: res.data.handleRefreshToken.token as any
       }));
-    });
+    });*/
   }
 }

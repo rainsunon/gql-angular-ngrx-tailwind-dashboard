@@ -1,7 +1,7 @@
 import {createReducer, on} from '@ngrx/store';
 import {
   appInit,
-  closeProfileMenu,
+  closeProfileMenu, logout,
   postLogin,
   toggleDarkMode,
   toggleLoginForm,
@@ -14,10 +14,11 @@ import jwt_decode from 'jwt-decode';
 function getDecodedAccessToken(token: string): UserGqlModel | undefined {
   try {
     return jwt_decode(token);
-  } catch(Error) {
+  } catch (Error) {
     return undefined;
   }
 }
+
 interface AppState {
   sideBarClosed: boolean;
   darkMode: boolean;
@@ -28,6 +29,7 @@ interface AppState {
   loginFormOpen?: boolean;
   refreshToken?: string;
 }
+
 export const appState: AppState = {
   sideBarClosed: false,
   darkMode: false,
@@ -44,29 +46,47 @@ export const appReducer = createReducer(
   on(appInit, (state) => {
     const darkMode = JSON.parse(localStorage.getItem('dark') ?? 'true');
     const jwt: string = localStorage.getItem('jwt') as string;
-    const isLoggedIn = JSON.parse(jwt ?  'true' : 'false');
+    const isLoggedIn = JSON.parse(jwt ? 'true' : 'false');
     const rt = localStorage.getItem('refreshToken') as string;
+    const sideBarClosed = JSON.parse(localStorage.getItem('sideBarClosed') ?? 'false');
     if (darkMode) {
       document.body.classList.add('dark');
     } else {
       document.body.classList.remove('dark');
     }
-    const user =  getDecodedAccessToken(jwt);
+    const user = getDecodedAccessToken(jwt);
     return {
       ...state,
       darkMode: darkMode,
       token: jwt,
       isLoggedIn: isLoggedIn,
       loginFormOpen: !isLoggedIn,
+      sideBarClosed: sideBarClosed ?? false,
       user,
       refreshToken: rt
     };
   }),
-  on(postLogin, (state, action) =>  {
-    const user =  getDecodedAccessToken(action.token);
-    localStorage.setItem('jwt', action.token);
-    localStorage.setItem('refreshToken',  action.refreshToken ?? (user?.refreshToken ?? '' ));
 
+  on(logout, (state) => {
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('refreshToken');
+    return {
+      ...state,
+      isLoggedIn: false,
+      user: undefined,
+      loginFormOpen: true,
+      refreshToken: undefined,
+      token: undefined
+    }
+  }),
+  on(postLogin, (state, action) => {
+    const user = getDecodedAccessToken(action.token);
+    localStorage.setItem('jwt', action.token);
+    localStorage.setItem('refreshToken', action.refreshToken ?? (user?.refreshToken ?? ''));
+
+    if(action.reload) {
+      window.location.reload();
+    }
     return {
       ...state,
       token: action.token,
@@ -89,6 +109,7 @@ export const appReducer = createReducer(
     }
   }),
   on(toggleSidebar, (state) => {
+    localStorage.setItem('sideBarClosed', JSON.stringify(!state.sideBarClosed));
     return {
       ...state,
       sideBarClosed: !state.sideBarClosed
