@@ -33,12 +33,12 @@ import {postLogin} from './state/app.actions';
   providers: [],
   template: `
     <app-nav></app-nav>
-    <div class="font-mono w-full h-[calc(100vh-60px)] ">
-      <div class=" w-full  h-full flex flex-row ">
+    <div class="font-mono w-screen h-[calc(100vh-60px)] ">
+      <div class=" w-full  h-full flex md:flex-row ">
         <app-sidebar>
         </app-sidebar>
-        <div [class.w-[calc(100%-300px)]]="!(sideBarClosed | async)" [class.sm:w-[calc(100%)]]="!(sideBarClosed | async)" [class.w-full]="sideBarClosed | async"
-             class="h-full pt-5 px-5 bg-[rgb(248,249,250)] dark:bg-gray-500 text-gray-500 transition-all
+        <div [class.hidden]="!(sideBarClosed | async)" [class.md:block]="!(sideBarClosed | async)"
+             class="h-full pt-5 px-5 bg-[rgb(248,249,250)]  dark:bg-gray-500 text-gray-500 transition-all w-full
          ">
           <app-login-form *ngIf="loginFormOpen | async"></app-login-form>
           <router-outlet></router-outlet>
